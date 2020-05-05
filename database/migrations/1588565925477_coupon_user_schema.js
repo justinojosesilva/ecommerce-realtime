@@ -17,7 +17,7 @@ class CouponUserSchema extends Schema {
   }
 
   down () {
-    this.drop('coupon_users')
+    this.drop('coupon_user')
   }
 }
 
