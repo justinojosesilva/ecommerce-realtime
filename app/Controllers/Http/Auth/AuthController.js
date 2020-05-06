@@ -1,12 +1,12 @@
 'use strict'
-const DataBase = use('DataBase')
+const Database = use('Database')
 const User = use('App/Models/User')
 const Role = use('Role')
 
 class AuthController {
 
     async register({ request, response }) {
-        const trx = await DataBase.beginTransaction()
+        const trx = await Database.beginTransaction()
 
         try {
             const { name, surname, email, password } = request.all()
