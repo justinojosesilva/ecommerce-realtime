@@ -8,7 +8,7 @@ Route.group(() => {
     /**
      * Categories resource routes
      */
-    Route.resource('categories', 'CategoryControlle').apiOnly()
+    Route.resource('categories', 'CategoryController').apiOnly()
 
     /**
      * Products resource routes
