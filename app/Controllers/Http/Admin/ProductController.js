@@ -22,11 +22,10 @@ class ProductController {
   async index ({ request, response, pagination }) {
     const name = request.input('name')
     const query = Product.query()
-
     if(name){
       query.where('name', 'LIKE', `%${name}%`)
     }
-    const products = await query.pagination(pagination.page, pagination.limit)
+    const products = await query.paginate(pagination.page, pagination.limit)
     return response.send(products)
 
   }
@@ -83,7 +82,7 @@ class ProductController {
       const { name, description, price, image_id } = request.all()
       product.merge({ name, description, price, image_id })
       await product.save()
-      return request.send(product)
+      return response.send(product)
     } catch (error) {
       return response
         .status(400)
