@@ -8,6 +8,13 @@ class Login {
       password:'required'
     }
   }
+
+  get messages() {
+    return {
+      'email.required': 'O e-mail já existe',
+      'password.required': 'A senha não foi informada'
+    }
+  }
 }
 
 module.exports = Login
