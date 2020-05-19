@@ -6,6 +6,8 @@
 const Coupon = use('App/Models/Coupon')
 const Database = use('Database')
 const Service = use('App/Services/Coupon/CouponService')
+const Transformer = use('App/Transformers/Admin/CouponTransformer')
+
 /**
  * Resourceful controller for interacting with coupons
  */
@@ -18,14 +20,16 @@ class CouponController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {Object} ctx.pagination
+   * @param {TransformWith} ctx.transform
    */
-  async index ({ request, response, pagination }) {
+  async index ({ request, response, pagination, transform }) {
     const code = request.input('code')
     const query = Coupon.query()
     if ( code ) {
       query.where('code', 'LIKE', `%${code}%`)
     }
-    const coupons = await query.paginate(pagination.page, pagination.limit)
+    var coupons = await query.paginate(pagination.page, pagination.limit)
+    coupons = await transform.paginate(coupons, Transformer)
     return response.send(coupons)
   }
 
@@ -36,8 +40,9 @@ class CouponController {
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
+   * @param {TransformWith} ctx.transform
    */
-  async store ({ request, response }) {
+  async store ({ request, response, transform }) {
     /**
      * 1 - produto - pode ser utilizado apenas em produtos específicos
      * 2 - clients - pode ser utilizado apenas por clientes especificos
@@ -53,7 +58,7 @@ class CouponController {
     try {
       const couponData = request.only(['code','discount','valid_from','valid_until','quantity','type','recursive'])
       const { users, products } = request.only(['users','products']) 
-      const coupon = await Coupon.create(couponData, trx)
+      var coupon = await Coupon.create(couponData, trx)
       // starts service layer
       const service = new Service(coupon, trx)
       // insere os relacionamentos no DB
@@ -79,6 +84,7 @@ class CouponController {
 
       await coupon.save(trx)
       await trx.commit()
+      coupon = await transform.item(coupon, Transformer)
       return response.status(201).send(coupon)
 
     } catch (error) {
@@ -92,12 +98,12 @@ class CouponController {
    * GET coupons/:id
    *
    * @param {object} ctx
-   * @param {Request} ctx.request
    * @param {Response} ctx.response
-   * @param {View} ctx.view
+   * @param {TransformWith} ctx.transform
    */
-  async show ({ params: { id }, request, response, view }) {
-    const coupon = await Coupon.findOrFail(id)
+  async show ({ params: { id }, response, transform }) {
+    var coupon = await Coupon.findOrFail(id)
+    coupon = await transform.item(coupon, Transformer)
     return response.send(coupon)
   }
 
@@ -108,8 +114,9 @@ class CouponController {
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
+   * @param {TransformWith} ctx.transform
    */
-  async update ({ params: { id }, request, response }) {
+  async update ({ params: { id }, request, response, transform }) {
     const trx = await Database.beginTransaction()
     var coupon = await Coupon.findOrFail(id)
     var can_use_for = {
@@ -145,6 +152,7 @@ class CouponController {
 
       await coupon.save(trx)
       await trx.commit()
+      coupon = await transform.item(coupon, Transformer)
       return response.send(coupon)
     } catch(error) {
       await trx.rollback()
@@ -159,10 +167,9 @@ class CouponController {
    * DELETE coupons/:id
    *
    * @param {object} ctx
-   * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params: { id }, request, response }) {
+  async destroy ({ params: { id }, response }) {
     const trx = await Database.beginTransaction()
     const coupon = await Coupon.findOrFail(id)
     try {
