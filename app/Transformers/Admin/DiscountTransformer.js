@@ -11,7 +11,7 @@ const CouponTransformer = use('App/Transformers/Admin/CouponTransformer')
  */
 class DiscountTransformer extends BumblebeeTransformer {
 
-  defaultInclude() {
+  static get defaultInclude() {
     return ['coupon']
   }
 

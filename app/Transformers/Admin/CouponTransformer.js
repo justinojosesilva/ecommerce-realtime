@@ -13,7 +13,7 @@ const OrderTransformer = use('App/Transformers/Admin/OrderTransformer')
  */
 class CouponTransformer extends BumblebeeTransformer {
 
-  availableIncludes() {
+  static get availableIncludes() {
     return ['users', 'products', 'orders']
   }
 

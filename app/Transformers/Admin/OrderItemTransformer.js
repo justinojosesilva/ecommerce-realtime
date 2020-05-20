@@ -11,7 +11,7 @@ const ProductTransformer = use('App/Transformers/Admin/ProductTransformer')
  */
 class OrderItemTransformer extends BumblebeeTransformer {
 
-  defaultInclude() {
+  static get defaultInclude() {
     return ['product']
   }
 

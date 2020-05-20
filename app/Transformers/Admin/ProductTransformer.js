@@ -11,7 +11,7 @@ const ImageTransformer = use('App/Transformers/Admin/ImageTransformer')
  */
 class ProductTransformer extends BumblebeeTransformer {
 
-  defaultInclude(){
+  static get defaultInclude(){
     return ['image']
   }
 

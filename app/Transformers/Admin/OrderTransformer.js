@@ -14,7 +14,7 @@ const DiscountTransformer = use('App/Transformers/Admin/DiscountTransformer')
  */
 class OrderTransformer extends BumblebeeTransformer {
 
-  availableInclude() {
+  static get availableInclude() {
     return ['user','coupons','items','discounts']
   }
 
