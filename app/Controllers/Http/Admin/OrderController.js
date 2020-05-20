@@ -58,7 +58,8 @@ class OrderController {
         await service.syncItems(items)
       }
       await trx.commit()
-      order = await transform.item(order, Transformer)
+      order = await Order.find(order.id)
+      order = await transform.include('user,items').item(order, Transformer)
       return response.status(201).send(order)
     } catch (error) {
       await trx.rollback()
@@ -79,7 +80,7 @@ class OrderController {
    */
   async show ({ params: {id}, response, transform }) {
     var order = await Order.findOrFail(id)
-    order = await transform.item(order, Transformer)
+    order = await transform.include('items,user,discounts').item(order, Transformer)
     return response.send(order)
   }
 
@@ -102,7 +103,7 @@ class OrderController {
       await service.updateItems(items)
       await order.save(trx)
       await trx.commit()
-      order = await transform.item(order, Transformer)
+      order = await transform.include('items,user,discounts,coupons').item(order, Transformer)
       return response.send(order)
     } catch (error) {
       await trx.rollback()
@@ -144,10 +145,10 @@ class OrderController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async applyDiscount({ params: {id}, request, response }) {
+  async applyDiscount({ params: {id}, request, response, transform }) {
     const { code } = request.all()
     const coupon = await Coupon.findByOrFail('code', code.toUpperCase())
-    const order = await Order.findOrFail(id)
+    var order = await Order.findOrFail(id)
     var discount, info = {}
     try {
       const service = new Service(order)
@@ -161,7 +162,8 @@ class OrderController {
       } else {
         info.message = 'Não foi possível aplicar este cupom!'
         info.success = false 
-      }    
+      }   
+      order = await transform.include('items,user,discounts,coupons').item(order, Transformer)
       return response.send({ order, info })
     } catch (error) {
       return response.status(400).send({message: 'Erro ao aplicar o cupom!'})
