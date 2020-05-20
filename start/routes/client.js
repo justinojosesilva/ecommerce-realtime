@@ -14,8 +14,8 @@ Route.group(() => {
     /**
      * Order Resource Route
      */
-    Route.get('orders', 'OrderController.index')
-    Route.get('orders/:id', 'OrderController.show')
+    Route.get('orders', 'OrderController.index').middleware(['auth'])
+    Route.get('orders/:id', 'OrderController.show').middleware(['auth'])
     Route.post('orders','OrderController.store')
     Route.put('orders/:id','OrderController.put')
 

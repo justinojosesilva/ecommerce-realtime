@@ -15,13 +15,10 @@ class AuthController {
             const userRoule = await Role.findBy('slug', 'client')
             await user.roles().attach([userRoule.id], null, trx)
             await trx.commit()
-
             const topic = Ws.getChannel('notifications').topic('notifications')
-
             if(topic){
                 topic.broadcast('new:user')
             }
-
             return response.status(201).send({ data: user })
         } catch (error) {
             await trx.rollback()
